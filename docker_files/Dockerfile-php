@@ -1,0 +1,43 @@
+# Utiliza la imagen base más reciente de PHP 8.0 con Apache
+FROM php:8.0-apache
+
+# Actualiza los repositorios y luego instala las dependencias necesarias
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    libpng-dev \
+    gcc \
+    make \
+    autoconf \
+    libc-dev \
+    pkg-config \
+    libyaml-dev
+
+# Instala la extensión YAML utilizando PECL
+RUN pecl install yaml && \
+    echo "extension=yaml.so" > /usr/local/etc/php/conf.d/yaml.ini
+
+# Instala las extensiones necesarias para PostgreSQL y GD
+RUN docker-php-ext-install pgsql pdo_pgsql gd
+
+# Configura el tamaño máximo de carga de archivos en PHP
+RUN echo "upload_max_filesize = 10M;" > /usr/local/etc/php/conf.d/uploads.ini
+
+# Habilita el módulo de reescritura de Apache
+RUN a2enmod rewrite
+
+# No es necesario reiniciar Apache aquí, ya que se reiniciará automáticamente cuando el contenedor se inicie
+
+# Limpieza del cache de paquetes para reducir el tamaño de la imagen
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Define un directorio de trabajo dentro del contenedor
+WORKDIR /var/www/html
+
+# Copia los archivos de tu aplicación al directorio de trabajo dentro del contenedor
+COPY . .
+
+# El contenedor expondrá el puerto 80 para tráfico web
+EXPOSE 80
+
+# Comando por defecto para iniciar Apache cuando se ejecute el contenedor
+CMD ["apache2-foreground"]
