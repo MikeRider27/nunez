@@ -5,8 +5,15 @@ function routeHandler($route)
     if ($route === '/') {
         // Mostrar la página de inicio que esta en vistas/login.php
         require __DIR__ . '/vistas/login.php';
-    } elseif ($route === '/home') {
-        echo "Esta es la página de información acerca de nosotros.";
+    } 
+    if ($route === '/home') {
+        require __DIR__ . '/vistas/home/index.php';
+    }
+    if ($route === '/registro') {
+        require __DIR__ . '/vistas/home/form.php';
+    }
+    if ($route === '/user/create') {
+        require __DIR__ . '/vistas/user/create.php';
     } 
 }
 
